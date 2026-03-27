@@ -1,0 +1,30 @@
+# Docker安装Server
+
+version: '3'
+services:
+  xiaozhi-esp32-server:
+    image: ghcr.nju.edu.cn/xinnan-tech/xiaozhi-esp32-server:server_latest
+    container_name: xiaozhi-esp32-server
+    restart: always
+    networks:
+      - xiaozhi-local
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      # ws服务端
+      - "8000:8000"
+      # http服务的端口，用于简单OTA接口(单服务部署)，以及视觉分析接口
+      - "8003:8003"
+    volumes:
+      # 配置文件目录
+      - ./data:/opt/xiaozhi-esp32-server/data
+      # 模型文件挂接，很重要
+      - ./models/SenseVoiceSmall/model.pt:/opt/xiaozhi-esp32-server/models/SenseVoiceSmall/model.pt
+      # 补丁：天气插件公开接口兜底
+      - /Users/lss/Desktop/esp_project/esp32_s3/deploy/xiaozhi-esp32-server/main/xiaozhi-server/plugins_func/functions/get_weather.py:/opt/xiaozhi-esp32-server/plugins_func/functions/get_weather.py:ro
+
+networks:
+  xiaozhi-local:
+    external: true
